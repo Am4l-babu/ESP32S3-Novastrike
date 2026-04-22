@@ -1,0 +1,12 @@
+{
+  "name": "NovaStrike",
+  "version": "1.0.0",
+  "description": "Full-featured arcade space shooter for Xiao ESP32-S3 with OLED display and MAX98357A audio",
+  "author": "Am4l-babu",
+  "license": "MIT",
+  "keywords": ["arcade", "game", "ESP32", "OLED", "retro"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Am4l-babu/ESP32S3-Novastrike.git"
+  }
+}

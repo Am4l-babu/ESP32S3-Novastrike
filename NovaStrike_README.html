@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVA STRIKE — README</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap');
+
+  :root {
+    --void: #020408;
+    --deep: #070d14;
+    --panel: #0b1520;
+    --panel2: #111e2e;
+    --border: #1a3a5c;
+    --border2: #0e2540;
+    --accent: #00d4ff;
+    --accent2: #0099cc;
+    --accent3: #00ff88;
+    --amber: #ffb400;
+    --red: #ff4455;
+    --purple: #a855f7;
+    --text: #c8dff5;
+    --text2: #7aa3c8;
+    --text3: #3d6080;
+    --mono: 'Share Tech Mono', monospace;
+    --head: 'Exo 2', sans-serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--text);
+    font-family: var(--head);
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── STARFIELD ── */
+  #starfield {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+
+  /* ── LAYOUT ── */
+  .page { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 4rem 0;
+  }
+
+  .hero-scanline {
+    position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,212,255,0.015) 2px, rgba(0,212,255,0.015) 4px
+    );
+  }
+
+  .hero-canvas-wrap {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  #heroCanvas {
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  .title-wrap { position: relative; margin-bottom: 1rem; }
+
+  .title-pre {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    color: var(--accent2);
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+  }
+
+  h1 {
+    font-family: var(--head);
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    color: #fff;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+  }
+
+  h1 span.n { color: var(--accent); }
+  h1 span.s { color: var(--accent3); }
+
+  .title-sub {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+    color: var(--text2);
+    margin-top: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.7s forwards;
+  }
+
+  .badge-row {
+    display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;
+    margin: 2rem 0;
+    opacity: 0; animation: fadeUp 0.8s 1s forwards;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 4px 12px;
+    border: 1px solid;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+  }
+  .badge-blue  { border-color: var(--accent2); color: var(--accent); background: rgba(0,153,204,0.1); }
+  .badge-green { border-color: #00cc66; color: var(--accent3); background: rgba(0,255,136,0.08); }
+  .badge-amber { border-color: #cc8800; color: var(--amber); background: rgba(255,180,0,0.08); }
+  .badge-red   { border-color: #cc2233; color: var(--red); background: rgba(255,68,85,0.08); }
+
+  /* ── NAV ── */
+  .toc {
+    opacity: 0; animation: fadeUp 0.8s 1.2s forwards;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+    font-family: var(--mono); font-size: 0.75rem; margin-top: 1rem;
+  }
+  .toc a { color: var(--text3); text-decoration: none; letter-spacing: 0.1em;
+            transition: color 0.2s; }
+  .toc a:hover { color: var(--accent); }
+
+  /* ── SECTIONS ── */
+  section { margin: 5rem 0; }
+
+  .sec-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: var(--accent2);
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-family: var(--head);
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  h2::after {
+    content: '';
+    position: absolute; left: 0; bottom: -1px;
+    width: 60px; height: 1px;
+    background: var(--accent);
+  }
+
+  h3 {
+    font-family: var(--head);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 1.5rem 0 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  p { color: var(--text2); margin-bottom: 1rem; font-size: 0.95rem; }
+
+  /* ── PANELS ── */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+  }
+
+  /* ── WIRING TABLE ── */
+  .wire-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  @media(max-width:600px){ .wire-grid { grid-template-columns: 1fr; } }
+
+  .wire-card {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .wire-card-head {
+    background: var(--panel2);
+    border-bottom: 1px solid var(--border2);
+    padding: 0.6rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    color: var(--accent2);
+  }
+  .wire-table { width: 100%; border-collapse: collapse; }
+  .wire-table td {
+    padding: 0.55rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    border-bottom: 1px solid var(--border2);
+    vertical-align: middle;
+  }
+  .wire-table tr:last-child td { border-bottom: none; }
+  .wire-table .pin { color: var(--text2); }
+  .wire-table .gpio { color: var(--accent); }
+  .wire-table .note { color: var(--text3); font-size: 0.7rem; }
+  .wire-dot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; margin-right: 8px; vertical-align: middle;
+  }
+
+  /* ── CONTROLS DIAGRAM ── */
+  .controls-layout {
+    display: flex;
+    gap: 2rem; align-items: flex-start;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .btn-diagram {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    padding: 1.5rem;
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+  }
+
+  .btn-key {
+    width: 72px; height: 72px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    background: var(--panel2);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    user-select: none;
+  }
+  .btn-key:hover, .btn-key.active {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    box-shadow: 0 0 16px rgba(0,212,255,0.2);
+  }
+  .btn-key .icon { font-size: 1.4rem; line-height: 1; }
+  .btn-key .label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--text3);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+  .btn-key.bomb .icon { font-size: 1.1rem; }
+
+  .controls-desc { flex: 1; min-width: 220px; }
+  .ctrl-row {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border2);
+    font-size: 0.85rem;
+  }
+  .ctrl-row:last-child { border-bottom: none; }
+  .ctrl-key-badge {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--accent2);
+    background: var(--panel2);
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 60px;
+    text-align: center;
+  }
+  .ctrl-desc { color: var(--text2); }
+
+  /* ── ENEMY CARDS ── */
+  .enemy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .enemy-card {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1.2rem;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .enemy-card::after {
+    content: '';
+    position: absolute; inset: 0;
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .enemy-card:hover { border-color: var(--border); }
+  .enemy-card:hover::after { opacity: 1; }
+
+  .enemy-canvas-wrap { margin-bottom: 0.75rem; }
+  .enemy-name {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 0.25rem;
+  }
+  .enemy-pts {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--amber);
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.1em;
+  }
+  .enemy-desc { font-size: 0.8rem; color: var(--text2); line-height: 1.5; }
+
+  .hp-row { display: flex; gap: 4px; margin: 0.5rem 0; }
+  .hp-pip {
+    width: 10px; height: 10px;
+    border: 1px solid var(--red);
+    border-radius: 1px;
+    background: rgba(255,68,85,0.4);
+  }
+
+  /* ── BOSS BAR ── */
+  .boss-section {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--red);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .boss-header {
+    display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;
+  }
+  .boss-tag {
+    font-family: var(--mono); font-size: 0.65rem;
+    padding: 3px 10px; border: 1px solid var(--red);
+    color: var(--red); background: rgba(255,68,85,0.1);
+    border-radius: 2px; letter-spacing: 0.15em;
+  }
+  .boss-name { font-weight: 700; font-size: 1.1rem; color: #fff; }
+  .boss-hp-bar {
+    height: 6px; background: var(--panel2);
+    border-radius: 1px; margin: 0.5rem 0 1rem;
+    position: relative; overflow: hidden;
+  }
+  .boss-hp-fill {
+    height: 100%; background: linear-gradient(90deg, var(--red), #ff8866);
+    border-radius: 1px;
+    animation: bossHpAnim 2s ease-in-out infinite alternate;
+  }
+  @keyframes bossHpAnim { from { width: 100%; } to { width: 72%; } }
+
+  /* ── POWERUP GRID ── */
+  .pu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .pu-card {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1rem;
+    display: flex; gap: 1rem; align-items: flex-start;
+  }
+  .pu-icon {
+    width: 36px; height: 36px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 1rem; font-weight: bold;
+    flex-shrink: 0;
+    border: 1px solid;
+  }
+  .pu-shield { background: rgba(0,212,255,0.1); border-color: var(--accent2); color: var(--accent); }
+  .pu-tri    { background: rgba(0,255,136,0.1); border-color: #00cc66; color: var(--accent3); }
+  .pu-speed  { background: rgba(168,85,247,0.1); border-color: #8833cc; color: var(--purple); }
+  .pu-bomb   { background: rgba(255,180,0,0.1); border-color: #cc8800; color: var(--amber); }
+  .pu-name { font-weight: 600; font-size: 0.85rem; color: #fff; margin-bottom: 0.25rem; }
+  .pu-desc { font-size: 0.75rem; color: var(--text2); line-height: 1.4; }
+
+  /* ── WAVE SYSTEM ── */
+  .wave-timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 1.5rem 0;
+  }
+  .wave-timeline::before {
+    content: '';
+    position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 1px; background: var(--border);
+  }
+  .wave-item {
+    position: relative;
+    padding: 0.75rem 0 0.75rem 1rem;
+  }
+  .wave-item::before {
+    content: '';
+    position: absolute; left: -1.55rem; top: 50%;
+    transform: translateY(-50%);
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--accent2);
+    background: var(--panel);
+  }
+  .wave-item.boss-wave::before {
+    border-color: var(--red);
+    background: rgba(255,68,85,0.2);
+    box-shadow: 0 0 8px rgba(255,68,85,0.4);
+  }
+  .wave-num {
+    font-family: var(--mono); font-size: 0.7rem;
+    color: var(--accent2); letter-spacing: 0.1em; margin-bottom: 0.2rem;
+  }
+  .wave-item.boss-wave .wave-num { color: var(--red); }
+  .wave-desc { font-size: 0.85rem; color: var(--text2); }
+
+  /* ── HUD DIAGRAM ── */
+  .hud-diagram {
+    background: var(--void);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  #hudCanvas { display: block; image-rendering: pixelated; }
+
+  /* ── ANIMATION STAGES ── */
+  .anim-stages {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .anim-stage {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .anim-icon {
+    width: 48px; height: 48px;
+    margin: 0 auto 0.75rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .anim-stage-name { font-weight: 600; font-size: 0.85rem; color: #fff; margin-bottom: 0.35rem; }
+  .anim-stage-desc { font-size: 0.75rem; color: var(--text2); line-height: 1.4; }
+
+  /* ── CODE BLOCK ── */
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--accent2);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text2);
+    overflow-x: auto;
+    margin: 1rem 0;
+    line-height: 1.8;
+  }
+  pre .kw { color: var(--accent); }
+  pre .cm { color: var(--text3); }
+  pre .st { color: var(--accent3); }
+  pre .nm { color: var(--amber); }
+
+  /* ── INSTALL STEPS ── */
+  .install-step {
+    display: flex; gap: 1rem; align-items: flex-start;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border2);
+  }
+  .install-step:last-child { border-bottom: none; }
+  .step-num {
+    width: 28px; height: 28px;
+    border: 1px solid var(--accent2);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--accent); flex-shrink: 0;
+    background: rgba(0,212,255,0.05);
+  }
+  .step-body { flex: 1; }
+  .step-title { font-weight: 600; font-size: 0.9rem; color: #fff; margin-bottom: 0.3rem; }
+  .step-desc { font-size: 0.8rem; color: var(--text2); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border2);
+    padding: 3rem 0;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: var(--head);
+    font-weight: 900;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+  .footer-logo span { color: var(--accent); }
+  .footer-sub { font-family: var(--mono); font-size: 0.7rem; color: var(--text3); letter-spacing: 0.2em; }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  @keyframes scanmove { from{background-position:0 0} to{background-position:0 100%} }
+
+  /* ── LIVE DEMO TICKER ── */
+  .ticker {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    animation: pulse 2s infinite;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<div class="page">
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <div class="hero-scanline"></div>
+
+    <div class="title-pre">ESP32-S3  ·  SSD1306  ·  ARCADE SHOOTER</div>
+
+    <div class="hero-canvas-wrap">
+      <canvas id="heroCanvas" width="400" height="120"></canvas>
+    </div>
+
+    <div class="title-wrap">
+      <h1><span class="n">NOVA</span><br><span class="s">STRIKE</span></h1>
+    </div>
+
+    <div class="title-sub">A pixel-perfect arcade shooter for embedded hardware</div>
+
+    <div class="badge-row">
+      <div class="badge badge-blue">XIAO ESP32-S3</div>
+      <div class="badge badge-green">0.96" OLED</div>
+      <div class="badge badge-amber">4 TOUCH BUTTONS</div>
+      <div class="badge badge-red">MAX98357A AUDIO</div>
+    </div>
+
+    <nav class="toc">
+      <a href="#hardware">HARDWARE</a>
+      <a href="#wiring">WIRING</a>
+      <a href="#controls">CONTROLS</a>
+      <a href="#gameplay">GAMEPLAY</a>
+      <a href="#enemies">ENEMIES</a>
+      <a href="#powerups">POWER-UPS</a>
+      <a href="#waves">WAVES</a>
+      <a href="#hud">HUD</a>
+      <a href="#animations">ANIMATIONS</a>
+      <a href="#install">INSTALL</a>
+    </nav>
+  </section>
+
+  <!-- ══ ABOUT ══ -->
+  <section id="about" class="reveal">
+    <div class="sec-label">// OVERVIEW</div>
+    <h2>What is Nova Strike?</h2>
+    <p>Nova Strike is a full-featured arcade space shooter running entirely on a Seeed Xiao ESP32-S3 microcontroller. The game renders a parallax starfield, animated pixel-art sprites, particle explosions, and a multi-phase boss fight on a 128×64 OLED display — all at ~50 FPS. Four capacitive touch sensors or push switches give you responsive, satisfying controls. Sound effects and a startup jingle play through a MAX98357A I²S amplifier.</p>
+    <p>The entire game — 1,151 lines of C++ — runs in the ESP32's on-chip SRAM with no external storage, SD card, or PSRAM required.</p>
+
+    <div class="panel" style="display:flex;gap:2rem;flex-wrap:wrap;text-align:center;">
+      <div style="flex:1;min-width:100px;">
+        <div style="font-family:var(--mono);font-size:2rem;color:var(--accent);font-weight:700;">1151</div>
+        <div style="font-size:0.75rem;color:var(--text3);letter-spacing:0.1em;">LINES OF CODE</div>
+      </div>
+      <div style="flex:1;min-width:100px;">
+        <div style="font-family:var(--mono);font-size:2rem;color:var(--accent3);font-weight:700;">~50</div>
+        <div style="font-size:0.75rem;color:var(--text3);letter-spacing:0.1em;">FPS TARGET</div>
+      </div>
+      <div style="flex:1;min-width:100px;">
+        <div style="font-family:var(--mono);font-size:2rem;color:var(--amber);font-weight:700;">3</div>
+        <div style="font-size:0.75rem;color:var(--text3);letter-spacing:0.1em;">ENEMY TYPES</div>
+      </div>
+      <div style="flex:1;min-width:100px;">
+        <div style="font-family:var(--mono);font-size:2rem;color:var(--purple);font-weight:700;">4</div>
+        <div style="font-size:0.75rem;color:var(--text3);letter-spacing:0.1em;">POWER-UP TYPES</div>
+      </div>
+      <div style="flex:1;min-width:100px;">
+        <div style="font-family:var(--mono);font-size:2rem;color:var(--red);font-weight:700;">∞</div>
+        <div style="font-size:0.75rem;color:var(--text3);letter-spacing:0.1em;">WAVES</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ HARDWARE ══ -->
+  <section id="hardware" class="reveal">
+    <div class="sec-label">// HARDWARE</div>
+    <h2>Components</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0;">
+      <div class="panel" style="margin:0;">
+        <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;color:var(--accent2);margin-bottom:0.5rem;">MICROCONTROLLER</div>
+        <div style="font-weight:700;font-size:1rem;color:#fff;margin-bottom:0.3rem;">Seeed Xiao ESP32-S3</div>
+        <div style="font-size:0.78rem;color:var(--text2);">Xtensa LX7 @ 240 MHz · 512KB SRAM · 8MB Flash · WiFi+BT</div>
+      </div>
+      <div class="panel" style="margin:0;">
+        <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;color:var(--accent2);margin-bottom:0.5rem;">DISPLAY</div>
+        <div style="font-weight:700;font-size:1rem;color:#fff;margin-bottom:0.3rem;">SSD1306 0.96" OLED</div>
+        <div style="font-size:0.78rem;color:var(--text2);">128 × 64 pixels · I²C interface · Monochrome · 3.3V</div>
+      </div>
+      <div class="panel" style="margin:0;">
+        <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;color:var(--accent2);margin-bottom:0.5rem;">INPUT</div>
+        <div style="font-weight:700;font-size:1rem;color:#fff;margin-bottom:0.3rem;">TTP223 × 4</div>
+        <div style="font-size:0.78rem;color:var(--text2);">Capacitive touch · HIGH when touched · Or use push switches with 10kΩ pull-down</div>
+      </div>
+      <div class="panel" style="margin:0;">
+        <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;color:var(--accent2);margin-bottom:0.5rem;">AUDIO</div>
+        <div style="font-weight:700;font-size:1rem;color:#fff;margin-bottom:0.3rem;">MAX98357A</div>
+        <div style="font-size:0.78rem;color:var(--text2);">I²S mono amplifier · 3.2W @ 4Ω · 5V recommended</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ WIRING ══ -->
+  <section id="wiring" class="reveal">
+    <div class="sec-label">// WIRING</div>
+    <h2>Pin Connections</h2>
+
+    <div class="wire-grid">
+      <div class="wire-card">
+        <div class="wire-card-head">
+          <span class="wire-dot" style="background:var(--accent2);"></span>OLED — I²C
+        </div>
+        <table class="wire-table">
+          <tr><td class="pin">SDA</td><td class="gpio">GPIO5 <span class="note">(D4)</span></td></tr>
+          <tr><td class="pin">SCL</td><td class="gpio">GPIO6 <span class="note">(D5)</span></td></tr>
+          <tr><td class="pin">VCC</td><td style="color:var(--accent3)">3.3V</td></tr>
+          <tr><td class="pin">GND</td><td style="color:var(--text3)">GND</td></tr>
+        </table>
+      </div>
+
+      <div class="wire-card">
+        <div class="wire-card-head">
+          <span class="wire-dot" style="background:#cc8800;"></span>TOUCH BUTTONS
+        </div>
+        <table class="wire-table">
+          <tr><td class="pin">UP</td><td class="gpio">GPIO1 <span class="note">(D0)</span></td></tr>
+          <tr><td class="pin">DOWN</td><td class="gpio">GPIO9 <span class="note">(D10)</span></td></tr>
+          <tr><td class="pin">FIRE</td><td class="gpio">GPIO3 <span class="note">(D2)</span></td></tr>
+          <tr><td class="pin">BOMB</td><td class="gpio">GPIO44 <span class="note">(D7)</span></td></tr>
+        </table>
+      </div>
+
+      <div class="wire-card">
+        <div class="wire-card-head">
+          <span class="wire-dot" style="background:var(--purple);"></span>MAX98357A — I²S
+        </div>
+        <table class="wire-table">
+          <tr><td class="pin">BCLK</td><td class="gpio">GPIO7 <span class="note">(D8)</span></td></tr>
+          <tr><td class="pin">LRC</td><td class="gpio">GPIO4 <span class="note">(D3)</span></td></tr>
+          <tr><td class="pin">DIN</td><td class="gpio">GPIO2 <span class="note">(D1)</span></td></tr>
+          <tr><td class="pin">VIN</td><td style="color:var(--amber)">5V <span class="note">(recommended)</span></td></tr>
+          <tr><td class="pin">GND</td><td style="color:var(--text3)">GND</td></tr>
+        </table>
+      </div>
+
+      <div class="wire-card">
+        <div class="wire-card-head">
+          <span class="wire-dot" style="background:#cc2233;"></span>NOTES
+        </div>
+        <table class="wire-table">
+          <tr><td colspan="2" style="color:var(--text2);font-size:0.75rem;line-height:1.6;padding:0.75rem 1rem;">
+            TTP223 outputs <span style="color:var(--accent)">HIGH</span> when touched (default mode A). <br><br>
+            For push switches: connect one side to GPIO, other to 3.3V. Add 10kΩ resistor from GPIO to GND. <br><br>
+            GPIO9 (D10) used for DOWN to avoid I²S conflict with GPIO2 (DIN).
+          </td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CONTROLS ══ -->
+  <section id="controls" class="reveal">
+    <div class="sec-label">// CONTROLS</div>
+    <h2>Button Layout</h2>
+
+    <div class="controls-layout">
+      <div class="btn-diagram">
+        <div class="btn-key" id="btn-up" onclick="demoBtn(this,'UP')">
+          <div class="icon">▲</div>
+          <div class="label">UP</div>
+        </div>
+        <div class="btn-key bomb" id="btn-bomb" onclick="demoBtn(this,'BOMB')">
+          <div class="icon">💣</div>
+          <div class="label">BOMB</div>
+        </div>
+        <div class="btn-key" id="btn-down" onclick="demoBtn(this,'DOWN')">
+          <div class="icon">▼</div>
+          <div class="label">DOWN</div>
+        </div>
+        <div class="btn-key" id="btn-fire" onclick="demoBtn(this,'FIRE')">
+          <div class="icon">⚡</div>
+          <div class="label">FIRE</div>
+        </div>
+      </div>
+
+      <div class="controls-desc">
+        <div class="ctrl-row">
+          <div class="ctrl-key-badge">UP</div>
+          <div class="ctrl-desc">Move ship upward. Hold for continuous movement. Speed boost active when V power-up collected.</div>
+        </div>
+        <div class="ctrl-row">
+          <div class="ctrl-key-badge">DOWN</div>
+          <div class="ctrl-desc">Move ship downward. Same speed as UP. Symmetric movement range covers full screen height minus HUD.</div>
+        </div>
+        <div class="ctrl-row">
+          <div class="ctrl-key-badge">FIRE</div>
+          <div class="ctrl-desc">Single shot on press. Hold for rapid fire (every 4 frames). TriShot power-up adds two diagonal spread bullets.</div>
+        </div>
+        <div class="ctrl-row">
+          <div class="ctrl-key-badge">BOMB</div>
+          <div class="ctrl-desc">Smart bomb — expanding ring clears all enemies. Deals 3 HP to boss. Max 5 bombs. Starts with 3.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="ctrl-feedback" style="font-family:var(--mono);font-size:0.75rem;color:var(--accent2);min-height:1.2rem;margin-top:0.5rem;padding:0.5rem;background:var(--panel);border-radius:2px;display:none;"></div>
+  </section>
+
+  <!-- ══ GAMEPLAY ══ -->
+  <section id="gameplay" class="reveal">
+    <div class="sec-label">// GAMEPLAY</div>
+    <h2>Core Mechanics</h2>
+
+    <p>Your ship is fixed on the left side of the screen. Enemies scroll in from the right. Shoot them before they pass or collide with you. Every 10 kills advances the wave — enemies get faster, spawn faster, and become more aggressive. Every third wave spawns a boss.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.5rem 0;">
+      <div class="panel" style="margin:0;border-left:3px solid var(--accent)">
+        <h3 style="margin-top:0;color:var(--accent)">Lives</h3>
+        <p style="margin:0;font-size:0.85rem;">Start with 3 lives. Lose one on enemy contact or boss bullet hit (unless shielded). 120-frame invincibility after each hit. Game over at 0 lives.</p>
+      </div>
+      <div class="panel" style="margin:0;border-left:3px solid var(--amber)">
+        <h3 style="margin-top:0;color:var(--amber)">Scoring</h3>
+        <p style="margin:0;font-size:0.85rem;">Drifter: 10pts · Hunter: 20pts · Kamikaze: 30pts · Boss: 500 + wave×100. High score persists for session.</p>
+      </div>
+      <div class="panel" style="margin:0;border-left:3px solid var(--accent3)">
+        <h3 style="margin-top:0;color:var(--accent3)">Idle Timeout</h3>
+        <p style="margin:0;font-size:0.85rem;">On title and score screens, a countdown bar appears after 2s. After 6s idle the game auto-returns to title with a hyperspace animation.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ENEMIES ══ -->
+  <section id="enemies" class="reveal">
+    <div class="sec-label">// ENEMIES</div>
+    <h2>Enemy Types</h2>
+
+    <div class="enemy-grid">
+
+      <div class="enemy-card">
+        <div class="enemy-canvas-wrap">
+          <canvas id="c-drifter" width="80" height="40"></canvas>
+        </div>
+        <div class="enemy-name">DRIFTER</div>
+        <div class="enemy-pts">10 PTS · 1 HP</div>
+        <div class="hp-row"><div class="hp-pip"></div></div>
+        <div class="enemy-desc">Moves straight across the screen with a slight vertical drift. First wave introduces only Drifters. Easy but abundant.</div>
+      </div>
+
+      <div class="enemy-card">
+        <div class="enemy-canvas-wrap">
+          <canvas id="c-hunter" width="80" height="40"></canvas>
+        </div>
+        <div class="enemy-name">HUNTER</div>
+        <div class="enemy-pts">20 PTS · 2 HP</div>
+        <div class="hp-row"><div class="hp-pip"></div><div class="hp-pip"></div></div>
+        <div class="enemy-desc">Slowly homes in on your Y position. Takes two hits to destroy. Appears from wave 2 onwards. Relentless.</div>
+      </div>
+
+      <div class="enemy-card">
+        <div class="enemy-canvas-wrap">
+          <canvas id="c-kamikaze" width="80" height="40"></canvas>
+        </div>
+        <div class="enemy-name">KAMIKAZE</div>
+        <div class="enemy-pts">30 PTS · 1 HP</div>
+        <div class="hp-row"><div class="hp-pip"></div></div>
+        <div class="enemy-desc">Hovers menacingly for 40 frames — then dashes directly at your ship at 2.2× speed. Flashes as warning before dash. Appears wave 4+.</div>
+      </div>
+
+    </div>
+
+    <!-- BOSS -->
+    <div class="boss-section">
+      <div class="boss-header">
+        <div class="boss-tag">BOSS</div>
+        <div class="boss-name">TITAN-CLASS WARSHIP</div>
+      </div>
+      <div style="font-size:0.8rem;color:var(--text2);margin-bottom:1rem;">13×9 pixel sprite · Appears every 3 waves · HP scales with wave number (8 + wave×4)</div>
+      <div style="font-size:0.75rem;font-family:var(--mono);color:var(--text3);margin-bottom:0.5rem;">CURRENT HP</div>
+      <div class="boss-hp-bar"><div class="boss-hp-fill"></div></div>
+      <canvas id="c-boss" width="200" height="60" style="display:block;image-rendering:pixelated;margin-bottom:1rem;"></canvas>
+      <div style="display:flex;gap:2rem;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:0.7rem;color:var(--text3);font-family:var(--mono);margin-bottom:0.25rem;">ATTACKS</div>
+          <div style="font-size:0.82rem;color:var(--text2);">Fires 3 simultaneous bullets at set intervals. Interval shortens each wave.</div>
+        </div>
+        <div>
+          <div style="font-size:0.7rem;color:var(--text3);font-family:var(--mono);margin-bottom:0.25rem;">REWARDS</div>
+          <div style="font-size:0.82rem;color:var(--amber);">500 + wave × 100 points</div>
+        </div>
+        <div>
+          <div style="font-size:0.7rem;color:var(--text3);font-family:var(--mono);margin-bottom:0.25rem;">BOMB DAMAGE</div>
+          <div style="font-size:0.82rem;color:var(--red);">3 HP per smart bomb</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ POWER-UPS ══ -->
+  <section id="powerups" class="reveal">
+    <div class="sec-label">// POWER-UPS</div>
+    <h2>Power-Up Items</h2>
+    <p>Power-ups have a 20% drop chance on enemy death. They scroll left across the screen; fly into one to collect. Each is marked with a single letter on a small bordered box.</p>
+
+    <div class="pu-grid">
+      <div class="pu-card">
+        <div class="pu-icon pu-shield">S</div>
+        <div>
+          <div class="pu-name">Shield</div>
+          <div class="pu-desc">Absorbs one hit. Displays a flashing ring around your ship. Enemy is also destroyed on impact.</div>
+        </div>
+      </div>
+      <div class="pu-card">
+        <div class="pu-icon pu-tri">T</div>
+        <div>
+          <div class="pu-name">TriShot</div>
+          <div class="pu-desc">Each fire now launches 3 bullets — one straight, two diagonal. Lasts 400 frames (~8 seconds).</div>
+        </div>
+      </div>
+      <div class="pu-card">
+        <div class="pu-icon pu-speed">V</div>
+        <div>
+          <div class="pu-name">SpeedBoost</div>
+          <div class="pu-desc">1.7× movement speed. Stars streak faster in the background for visual feedback. Lasts 350 frames.</div>
+        </div>
+      </div>
+      <div class="pu-card">
+        <div class="pu-icon pu-bomb">B</div>
+        <div>
+          <div class="pu-name">Bomb Refill</div>
+          <div class="pu-desc">+1 smart bomb, capped at 5. Shown as filled circles in the bottom-right HUD area.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="font-family:var(--mono);font-size:0.7rem;color:var(--text3);margin-bottom:0.5rem;">ACTIVE POWER-UPS HUD</div>
+      <div style="font-size:0.85rem;color:var(--text2);">While a power-up is active, its letter appears in the top-left corner of the screen. S, T, and V can be active simultaneously. Power-ups do not stack — collecting a second TriShot resets its timer.</div>
+    </div>
+  </section>
+
+  <!-- ══ WAVES ══ -->
+  <section id="waves" class="reveal">
+    <div class="sec-label">// WAVE SYSTEM</div>
+    <h2>Wave Progression</h2>
+    <p>Eliminate 10 enemies to complete a wave. Speed, spawn rate, and enemy variety increase each wave. Every 3rd wave triggers a boss fight before the next wave begins.</p>
+
+    <div class="wave-timeline">
+      <div class="wave-item">
+        <div class="wave-num">WAVE 1</div>
+        <div class="wave-desc">Drifters only · Slow spawn · Speed 1.25 · Learn the basics</div>
+      </div>
+      <div class="wave-item">
+        <div class="wave-num">WAVE 2</div>
+        <div class="wave-desc">Drifters + Hunters · Medium spawn · Speed 1.5</div>
+      </div>
+      <div class="wave-item boss-wave">
+        <div class="wave-num">WAVE 3 — BOSS</div>
+        <div class="wave-desc">Titan-Class Warship · 20 HP · 3-bullet salvo every 55 frames</div>
+      </div>
+      <div class="wave-item">
+        <div class="wave-num">WAVE 4</div>
+        <div class="wave-desc">All enemy types · Fast spawn · Speed 2.0 · Kamikazes debut</div>
+      </div>
+      <div class="wave-item">
+        <div class="wave-num">WAVE 5</div>
+        <div class="wave-desc">All types · Very fast · Speed 2.25 · Tight gaps</div>
+      </div>
+      <div class="wave-item boss-wave">
+        <div class="wave-num">WAVE 6 — BOSS</div>
+        <div class="wave-desc">Titan-Class · 32 HP · Salvo every 40 frames · Faster movement</div>
+      </div>
+      <div class="wave-item">
+        <div class="wave-num">WAVE 7+</div>
+        <div class="wave-desc">Speed continues scaling · Spawn rate floor at 15 frames · Boss every 3 waves forever</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ HUD ══ -->
+  <section id="hud" class="reveal">
+    <div class="sec-label">// HEADS-UP DISPLAY</div>
+    <h2>Screen Layout</h2>
+
+    <div class="hud-diagram">
+      <canvas id="hudCanvas" width="640" height="200" style="width:100%;max-width:640px;display:block;"></canvas>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:1rem;">
+      <div style="font-size:0.82rem;color:var(--text2);">
+        <span style="color:var(--accent);font-family:var(--mono);font-size:0.7rem;">TOP-LEFT</span><br>
+        Active power-up letters (S, T, V). Hidden when no power-up is active.
+      </div>
+      <div style="font-size:0.82rem;color:var(--text2);">
+        <span style="color:var(--accent);font-family:var(--mono);font-size:0.7rem;">TOP-CENTER</span><br>
+        Current wave number. Shown as "W1", "W2", etc.
+      </div>
+      <div style="font-size:0.82rem;color:var(--text2);">
+        <span style="color:var(--accent);font-family:var(--mono);font-size:0.7rem;">TOP-RIGHT</span><br>
+        Boss HP bar — only visible during boss encounter.
+      </div>
+      <div style="font-size:0.82rem;color:var(--text2);">
+        <span style="color:var(--accent);font-family:var(--mono);font-size:0.7rem;">BOTTOM-LEFT</span><br>
+        Lives remaining as small triangle ship icons.
+      </div>
+      <div style="font-size:0.82rem;color:var(--text2);">
+        <span style="color:var(--accent);font-family:var(--mono);font-size:0.7rem;">BOTTOM-CENTER</span><br>
+        Current score.
+      </div>
+      <div style="font-size:0.82rem;color:var(--text2);">
+        <span style="color:var(--accent);font-family:var(--mono);font-size:0.7rem;">BOTTOM-RIGHT</span><br>
+        Bomb count as filled circles. Dims when depleted.
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ANIMATIONS ══ -->
+  <section id="animations" class="reveal">
+    <div class="sec-label">// VISUAL STATES</div>
+    <h2>Animations & Screens</h2>
+
+    <div class="anim-stages">
+      <div class="anim-stage">
+        <div class="anim-icon">
+          <canvas id="anim-boot" width="48" height="48"></canvas>
+        </div>
+        <div class="anim-stage-name">Boot</div>
+        <div class="anim-stage-desc">Scanline fill → "NOVA" flash → triple invert → "STRIKE!" title burn</div>
+      </div>
+      <div class="anim-stage">
+        <div class="anim-icon">
+          <canvas id="anim-title" width="48" height="48"></canvas>
+        </div>
+        <div class="anim-stage-name">Title</div>
+        <div class="anim-stage-desc">Ship flies across screen · sine-wave underline · idle countdown bar</div>
+      </div>
+      <div class="anim-stage">
+        <div class="anim-icon">
+          <canvas id="anim-wave" width="48" height="48"></canvas>
+        </div>
+        <div class="anim-stage-name">Wave Clear</div>
+        <div class="anim-stage-desc">8-arm radial burst from screen center</div>
+      </div>
+      <div class="anim-stage">
+        <div class="anim-icon">
+          <canvas id="anim-boss" width="48" height="48"></canvas>
+        </div>
+        <div class="anim-stage-name">Boss Entry</div>
+        <div class="anim-stage-desc">Flashing "! BOSS !" warning · boss slides in from right</div>
+      </div>
+      <div class="anim-stage">
+        <div class="anim-icon">
+          <canvas id="anim-death" width="48" height="48"></canvas>
+        </div>
+        <div class="anim-stage-name">Death</div>
+        <div class="anim-stage-desc">12-particle explosion + expanding twin shockwave rings</div>
+      </div>
+      <div class="anim-stage">
+        <div class="anim-icon">
+          <canvas id="anim-score" width="48" height="48"></canvas>
+        </div>
+        <div class="anim-stage-name">Score</div>
+        <div class="anim-stage-desc">Star medal · score count-up · new record banner pulses</div>
+      </div>
+      <div class="anim-stage">
+        <div class="anim-icon">
+          <canvas id="anim-hyper" width="48" height="48"></canvas>
+        </div>
+        <div class="anim-stage-name">Hyperspace</div>
+        <div class="anim-stage-desc">Stars streak horizontally · title rebuilds letter-by-letter</div>
+      </div>
+      <div class="anim-stage">
+        <div class="anim-icon">
+          <canvas id="anim-bomb" width="48" height="48"></canvas>
+        </div>
+        <div class="anim-stage-name">Smart Bomb</div>
+        <div class="anim-stage-desc">Expanding double ring blast from ship position</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SOUND ══ -->
+  <section id="sound" class="reveal">
+    <div class="sec-label">// AUDIO</div>
+    <h2>Sound Effects</h2>
+    <p>All audio is synthesized in real-time using sine waves with attack/release envelopes. A non-blocking tone queue prevents sound from stalling the game loop.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.75rem;margin:1.5rem 0;">
+      <div class="panel" style="margin:0;padding:1rem;">
+        <div style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);margin-bottom:0.3rem;">SFX_JINGLE</div>
+        <div style="font-size:0.8rem;color:var(--text2);">C5 → E5 → G5 → C6 ascending arpeggio. Plays on boot and game start.</div>
+      </div>
+      <div class="panel" style="margin:0;padding:1rem;">
+        <div style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);margin-bottom:0.3rem;">SFX_SHOOT</div>
+        <div style="font-size:0.8rem;color:var(--text2);">Short 880 Hz blip at low volume. Triggers on every bullet fired.</div>
+      </div>
+      <div class="panel" style="margin:0;padding:1rem;">
+        <div style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);margin-bottom:0.3rem;">SFX_HIT</div>
+        <div style="font-size:0.8rem;color:var(--text2);">220 Hz thud. Plays when a bullet connects with an enemy.</div>
+      </div>
+      <div class="panel" style="margin:0;padding:1rem;">
+        <div style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);margin-bottom:0.3rem;">SFX_EXPLODE</div>
+        <div style="font-size:0.8rem;color:var(--text2);">Two-tone descent. Enemy destruction and player death.</div>
+      </div>
+      <div class="panel" style="margin:0;padding:1rem;">
+        <div style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);margin-bottom:0.3rem;">SFX_BOMB</div>
+        <div style="font-size:0.8rem;color:var(--text2);">Three descending tones. Deep, satisfying. Smart bomb deploy.</div>
+      </div>
+      <div class="panel" style="margin:0;padding:1rem;">
+        <div style="font-family:var(--mono);font-size:0.7rem;color:var(--accent);margin-bottom:0.3rem;">SFX_BOSS_DIE</div>
+        <div style="font-size:0.8rem;color:var(--text2);">5-note descending cascade. Only plays when the boss is defeated.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ INSTALL ══ -->
+  <section id="install" class="reveal">
+    <div class="sec-label">// INSTALLATION</div>
+    <h2>Setup Guide</h2>
+
+    <div class="panel">
+      <div class="install-step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Install Arduino IDE + ESP32 Core</div>
+          <div class="step-desc">Add the Espressif board URL to Boards Manager: <code style="font-family:var(--mono);color:var(--accent2);">https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json</code> — then install "esp32 by Espressif Systems".</div>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Install required libraries</div>
+          <div class="step-desc">Open Library Manager (Ctrl+Shift+I) and install: <span style="color:var(--accent3)">Adafruit SSD1306</span> and <span style="color:var(--accent3)">Adafruit GFX Library</span>. Accept dependency installs.</div>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Select board</div>
+          <div class="step-desc">Tools → Board → ESP32 Arduino → <span style="color:var(--accent)">XIAO_ESP32S3</span>. Leave all other settings at default.</div>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Wire the hardware</div>
+          <div class="step-desc">Follow the wiring table above. The I²S speaker DIN is on GPIO2 (D1) — confirm this doesn't conflict with your DOWN button which is on GPIO9 (D10).</div>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <div class="step-title">Upload</div>
+          <div class="step-desc">Open <span style="color:var(--amber)">NovaStrike.ino</span>, select your COM port, and click Upload. The boot animation will play immediately after flashing completes.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Troubleshooting</h3>
+    <div style="font-size:0.85rem;color:var(--text2);">
+      <div style="border-bottom:1px solid var(--border2);padding:0.6rem 0;"><span style="color:var(--red)">OLED blank</span> — check SDA/SCL pins, confirm I²C address is 0x3C with a scanner sketch</div>
+      <div style="border-bottom:1px solid var(--border2);padding:0.6rem 0;"><span style="color:var(--red)">No sound</span> — confirm 5V on VIN, check BCLK/LRC/DIN orientation, test with a sine wave sketch</div>
+      <div style="border-bottom:1px solid var(--border2);padding:0.6rem 0;"><span style="color:var(--red)">Buttons not responding</span> — TTP223 needs a ground connection; confirm OUT goes HIGH when touched with Serial.println</div>
+      <div style="padding:0.6rem 0;"><span style="color:var(--red)">Compile errors</span> — ensure ESP32 core version ≥ 2.x; driver/i2s.h is included in the ESP32 Arduino core, not standalone</div>
+    </div>
+  </section>
+
+  <!-- ══ TUNING ══ -->
+  <section id="tuning" class="reveal">
+    <div class="sec-label">// CUSTOMIZATION</div>
+    <h2>Tuning Constants</h2>
+    <p>All game-feel parameters are defined as macros near the top of the file. Easy to tweak without touching game logic.</p>
+
+<pre><span class="cm">// ── Physics ──</span>
+<span class="kw">#define</span> <span class="nm">SHIP_SPD</span>       <span class="st">2</span>       <span class="cm">// pixels per frame</span>
+<span class="kw">#define</span> <span class="nm">BULLET_SPD</span>     <span class="st">5</span>       <span class="cm">// pixels per frame</span>
+<span class="kw">#define</span> <span class="nm">PIPE_GAP_HALF</span>  <span class="st">11</span>      <span class="cm">// enemy gap half-height</span>
+
+<span class="cm">// ── Difficulty ──</span>
+<span class="kw">#define</span> <span class="nm">KILLS_PER_WAVE</span> <span class="st">10</span>      <span class="cm">// kills to advance wave</span>
+<span class="kw">#define</span> <span class="nm">MAX_BULLETS</span>    <span class="st">8</span>       <span class="cm">// bullet pool size</span>
+<span class="kw">#define</span> <span class="nm">MAX_ENEMIES</span>    <span class="st">10</span>      <span class="cm">// enemy pool size</span>
+
+<span class="cm">// ── Timing ──</span>
+<span class="kw">#define</span> <span class="nm">IDLE_MS</span>        <span class="st">6000</span>    <span class="cm">// idle timeout milliseconds</span>
+
+<span class="cm">// ── Power-up durations (frames) ──</span>
+ship.shieldTimer  = <span class="st">300</span>;
+ship.triShotTimer = <span class="st">400</span>;
+ship.speedTimer   = <span class="st">350</span>;</pre>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="reveal">
+    <div class="footer-logo"><span>NOVA</span> STRIKE</div>
+    <div class="footer-sub" style="margin-top:0.5rem;margin-bottom:1.5rem;">XIAO ESP32-S3  ·  SSD1306  ·  MAX98357A  ·  4× TTP223</div>
+    <div style="font-size:0.75rem;color:var(--text3);font-family:var(--mono);">Built with Arduino  ·  Adafruit GFX  ·  ESP32 I²S</div>
+  </footer>
+
+</div>
+
+<script>
+// ── STARFIELD ──────────────────────────────────────────────────────
+const sf = document.getElementById('starfield');
+const sctx = sf.getContext('2d');
+let sW, sH, sStars=[];
+
+function resizeSf(){
+  sW=sf.width=window.innerWidth;
+  sH=sf.height=window.innerHeight;
+  sStars=Array.from({length:160},()=>({
+    x:Math.random()*sW, y:Math.random()*sH,
+    r:Math.random()*1.2+0.2, spd:Math.random()*0.4+0.05,
+    a:Math.random()
+  }));
+}
+resizeSf();
+window.addEventListener('resize',resizeSf);
+
+function animSf(){
+  sctx.clearRect(0,0,sW,sH);
+  for(let s of sStars){
+    s.a += 0.01;
+    let op = 0.3+0.4*Math.abs(Math.sin(s.a));
+    sctx.fillStyle=`rgba(150,210,255,${op})`;
+    sctx.beginPath();
+    sctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sctx.fill();
+    s.x -= s.spd;
+    if(s.x<0){s.x=sW; s.y=Math.random()*sH;}
+  }
+  requestAnimationFrame(animSf);
+}
+animSf();
+
+// ── PIXEL HELPERS ──────────────────────────────────────────────────
+function px(ctx,x,y,col,scale=1){
+  ctx.fillStyle=col;
+  ctx.fillRect(x*scale,y*scale,scale,scale);
+}
+
+function drawPixelSprite(ctx,sprite,rows,cols,ox,oy,col,scale=4){
+  for(let r=0;r<rows;r++){
+    let row=sprite[r];
+    for(let c=0;c<cols;c++){
+      if(row&(1<<(cols-1-c)))
+        px(ctx,ox+c,oy+r,col,scale);
+    }
+  }
+}
+
+// ── HERO CANVAS ────────────────────────────────────────────────────
+const hc = document.getElementById('heroCanvas');
+const hctx = hc.getContext('2d');
+hctx.imageSmoothingEnabled=false;
+
+const SHIP=[0b0001000,0b0011000,0b1111110,0b1111111,0b1111110,0b0011000,0b0001000];
+const FLAME_A=[0b110,0b100,0b010];
+const FLAME_B=[0b010,0b110,0b100];
+
+let heroStars = Array.from({length:40},()=>({
+  x:Math.random()*400, y:Math.random()*120,
+  spd:Math.floor(Math.random()*3)+1
+}));
+
+let bulletX=[], enemyX=[];
+let heroT=0;
+
+function heroShip(x,y,fr){
+  let fl=fr%2==0?FLAME_A:FLAME_B;
+  let scale=4;
+  hctx.fillStyle='#00d4ff';
+  for(let r=0;r<7;r++) for(let c=0;c<7;c++)
+    if(SHIP[r]&(0x40>>c)) px(hctx,x+c,y+r,'#c8dff5',scale);
+  hctx.fillStyle='#ff8833';
+  for(let r=0;r<3;r++) for(let c=0;c<3;c++)
+    if(fl[r]&(0x4>>c)) px(hctx,x-3+c,y+2+r,'#ff8833',scale);
+}
+
+// Drifter sprite
+const DR=[0b01110,0b11111,0b11111,0b01110,0b00100];
+
+function heroFrame(){
+  hctx.clearRect(0,0,400,120);
+  // stars
+  for(let s of heroStars){
+    let a=0.5+0.4*Math.sin(heroT*0.05+s.x);
+    hctx.fillStyle=`rgba(150,210,255,${a})`;
+    hctx.fillRect(s.x,s.y,s.spd==1?1:2,1);
+    s.x-=s.spd;
+    if(s.x<0){s.x=400;s.y=Math.random()*120;}
+  }
+  // ship
+  heroShip(4, 5, Math.floor(heroT/8));
+
+  // bullets
+  if(heroT%20==0 && bulletX.length<4) bulletX.push(32);
+  bulletX=bulletX.filter(x=>x<100);
+  for(let b of bulletX){
+    hctx.fillStyle='#00ff88';
+    hctx.fillRect(b*4,30,16,3);
+  }
+  bulletX=bulletX.map(x=>x+1.2);
+
+  // enemies
+  if(heroT%60==0) enemyX.push({x:99,y:Math.floor(Math.random()*12)+3});
+  enemyX=enemyX.filter(e=>e.x>-5);
+  for(let e of enemyX){
+    drawPixelSprite(hctx,DR,5,5,e.x,e.y,'#ff4455',4);
+    e.x-=0.6;
+  }
+
+  heroT++;
+  requestAnimationFrame(heroFrame);
+}
+heroFrame();
+
+// ── ENEMY CANVASES ─────────────────────────────────────────────────
+function drawEnemy(id,sprite,col,scale=6){
+  const c=document.getElementById(id);
+  const ctx=c.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+  ctx.clearRect(0,0,c.width,c.height);
+  let ox=Math.floor((c.width/scale-5)/2);
+  let oy=Math.floor((c.height/scale-5)/2);
+  drawPixelSprite(ctx,sprite,5,5,ox,oy,col,scale);
+}
+
+const HUNTER=[0b10001,0b01110,0b11111,0b01110,0b10001];
+const KAMI  =[0b00100,0b01110,0b11111,0b11111,0b11111];
+
+drawEnemy('c-drifter',DR,'#00d4ff');
+drawEnemy('c-hunter',HUNTER,'#ffb400');
+drawEnemy('c-kamikaze',KAMI,'#ff4455');
+
+// Boss
+const BOSS=[
+  0b0000100000100,0b0001110001110,0b0011111111110,
+  0b0111111111111,0b1111111111111,0b0111111111111,
+  0b0011111111110,0b0001110001110,0b0000100000100
+];
+(function(){
+  const c=document.getElementById('c-boss');
+  const ctx=c.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+  let s=8, ox=10, oy=15;
+  for(let r=0;r<9;r++) for(let c2=0;c2<13;c2++)
+    if(BOSS[r]&(0x1000>>c2)){
+      ctx.fillStyle=r<4?'#ff6655':'#ff4455';
+      ctx.fillRect((ox+c2)*s,(oy+r)*s,s,s);
+    }
+  // eye-like details
+  ctx.fillStyle='#ffaaaa';
+  ctx.fillRect((ox+3)*s,(oy+4)*s,s,s);
+  ctx.fillRect((ox+9)*s,(oy+4)*s,s,s);
+})();
+
+// ── HUD CANVAS ─────────────────────────────────────────────────────
+(function(){
+  const c=document.getElementById('hudCanvas');
+  const ctx=c.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+
+  const S=4; // scale: 4px per OLED pixel
+  const W=128,H=64;
+  const BG='#020408';
+
+  // OLED background
+  ctx.fillStyle=BG;
+  ctx.fillRect(0,0,W*S,H*S);
+
+  // Border
+  ctx.strokeStyle='#1a3a5c';
+  ctx.lineWidth=2;
+  ctx.strokeRect(1,1,W*S-2,H*S-2);
+
+  // Stars
+  for(let i=0;i<20;i++){
+    let sx=Math.floor(Math.random()*120)+4;
+    let sy=Math.floor(Math.random()*50)+4;
+    ctx.fillStyle='rgba(200,220,255,0.5)';
+    ctx.fillRect(sx*S,sy*S,S,S);
+  }
+
+  // Player ship
+  function dot(x,y,col){ ctx.fillStyle=col; ctx.fillRect(x*S,y*S,S,S); }
+  ctx.fillStyle='#c8dff5';
+  for(let r=0;r<7;r++) for(let c=0;c<7;c++)
+    if(SHIP[r]&(0x40>>c)) dot(2+c,26+r,'#c8dff5');
+  dot(0,28,'#ff8833'); dot(0,29,'#ff8833'); dot(0,30,'#ff8833');
+
+  // Bullets
+  ctx.fillStyle='#00ff88';
+  for(let i=0;i<3;i++) ctx.fillRect((14+i*8)*S,28*S,S*4,S);
+
+  // Enemy
+  const ex=90, ey=25;
+  for(let r=0;r<5;r++) for(let c=0;c<5;c++)
+    if(DR[r]&(0x10>>c)) dot(ex+c,ey+r,'#ff4455');
+
+  // HUD labels
+  ctx.fillStyle='#00d4ff';
+  ctx.font=`${S*5}px "Share Tech Mono", monospace`;
+
+  // Wave
+  ctx.fillText('W3',58*S,S*7);
+
+  // Power icons
+  ctx.fillStyle='#00d4ff'; ctx.fillText('S',1*S,S*7);
+  ctx.fillStyle='#00ff88'; ctx.fillText('T',9*S,S*7);
+
+  // Score
+  ctx.fillStyle='#c8dff5';
+  ctx.fillText('02650',48*S,61*S);
+
+  // Lives (triangle icons)
+  ctx.fillStyle='#c8dff5';
+  for(let i=0;i<3;i++){
+    let lx=(2+i*8)*S;
+    ctx.beginPath();
+    ctx.moveTo(lx+S,62*S-S*5);
+    ctx.lineTo(lx,62*S);
+    ctx.lineTo(lx+S*2,62*S);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Bombs (circles)
+  for(let i=0;i<3;i++){
+    ctx.beginPath();
+    ctx.arc((124-i*6)*S+S,(62*S),S*1.5,0,Math.PI*2);
+    ctx.fillStyle='#ffb400';
+    ctx.fill();
+  }
+
+  // Boss HP bar top right
+  ctx.strokeStyle='#c8dff5'; ctx.lineWidth=S;
+  ctx.strokeRect(93*S,S*2,S*32,S*4);
+  ctx.fillStyle='#ff4455';
+  ctx.fillRect(93*S+S/2,S*2+S/2,S*20,S*3);
+
+  // Annotation lines
+  const annotations=[
+    {x:1,y:7,lx:-2,ly:0,label:'Power-ups',anchor:'end'},
+    {x:64,y:7,lx:0,ly:-10,label:'Wave',anchor:'middle'},
+    {x:109,y:4,lx:15,ly:-5,label:'Boss HP',anchor:'start'},
+    {x:4,y:60,lx:-2,ly:12,label:'Lives',anchor:'end'},
+    {x:64,y:61,lx:0,ly:12,label:'Score',anchor:'middle'},
+    {x:118,y:62,lx:15,ly:12,label:'Bombs',anchor:'start'},
+  ];
+  ctx.setLineDash([2,3]);
+  ctx.lineWidth=1;
+  for(let a of annotations){
+    let ax=a.x*S, ay=a.y*S;
+    let tx=ax+a.lx*S, ty=ay+a.ly*S;
+    ctx.strokeStyle='rgba(0,212,255,0.4)';
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(tx,ty); ctx.stroke();
+    ctx.fillStyle='rgba(0,212,255,0.8)';
+    ctx.font=`${11}px "Share Tech Mono", monospace`;
+    ctx.textAlign=a.anchor;
+    ctx.fillText(a.label, tx+(a.anchor==='end'?-4:a.anchor==='start'?4:0), ty+(a.ly>0?11:-3));
+  }
+  ctx.setLineDash([]);
+  ctx.textAlign='left';
+})();
+
+// ── ANIMATION MINI CANVASES ────────────────────────────────────────
+let animT=0;
+function drawAnimCanvases(){
+  animT++;
+  drawAnimBoot();   drawAnimTitle();
+  drawAnimWave();   drawAnimBoss();
+  drawAnimDeath();  drawAnimScore();
+  drawAnimHyper();  drawAnimBomb();
+  requestAnimationFrame(drawAnimCanvases);
+}
+
+function clearAnim(id){ const c=document.getElementById(id); c.getContext('2d').clearRect(0,0,48,48); return c; }
+
+function drawAnimBoot(){
+  const c=clearAnim('anim-boot'); const ctx=c.getContext('2d');
+  let lines=Math.floor((animT%120)/2);
+  for(let y=0;y<lines;y++){
+    ctx.fillStyle=y%3==0?'rgba(0,212,255,0.3)':'rgba(0,212,255,0.1)';
+    ctx.fillRect(0,y,48,1);
+  }
+  if(animT%120>60){
+    ctx.fillStyle='#c8dff5'; ctx.font='bold 14px monospace';
+    ctx.fillText('NOVA',4,28);
+  }
+}
+
+function drawAnimTitle(){
+  const c=clearAnim('anim-title'); const ctx=c.getContext('2d');
+  // mini stars
+  for(let i=0;i<10;i++){
+    let sx=(i*37+animT*(i%3+1))%48;
+    ctx.fillStyle='rgba(150,210,255,0.6)';
+    ctx.fillRect(sx,i*5%48,1,1);
+  }
+  // ship
+  let sy=22+Math.floor(3*Math.sin(animT*0.08));
+  ctx.fillStyle='#c8dff5';
+  for(let r=0;r<7;r++) for(let c2=0;c2<7;c2++)
+    if(SHIP[r]&(0x40>>c2)) ctx.fillRect((4+c2)*2,(sy+r)*1.2,2,2);
+}
+
+function drawAnimWave(){
+  const c=clearAnim('anim-wave'); const ctx=c.getContext('2d');
+  let cx=24,cy=24, t=animT*0.05;
+  for(let i=0;i<8;i++){
+    let a=i*Math.PI/4+t;
+    let r=(animT%80)*0.3;
+    ctx.strokeStyle=`rgba(0,212,255,${Math.max(0,0.8-r/24)})`;
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);
+    ctx.stroke();
+  }
+}
+
+function drawAnimBoss(){
+  const c=clearAnim('anim-boss'); const ctx=c.getContext('2d');
+  if(Math.floor(animT/15)%2==0){
+    ctx.fillStyle='#ff4455'; ctx.font='bold 9px monospace';
+    ctx.fillText('!BOSS!',2,20);
+  }
+  let bx=Math.max(2,30-animT%80*0.4);
+  for(let r=0;r<9;r++) for(let cc=0;cc<13;cc++)
+    if(BOSS[r]&(0x1000>>cc)){ ctx.fillStyle='#ff6655'; ctx.fillRect(bx+cc*2.5,24+r*2,2,2); }
+}
+
+function drawAnimDeath(){
+  const c=clearAnim('anim-death'); const ctx=c.getContext('2d');
+  let t2=animT%60;
+  ctx.strokeStyle=`rgba(0,212,255,${Math.max(0,1-t2/60)})`;
+  ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(24,24,t2*0.5,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle=`rgba(255,255,255,${Math.max(0,0.7-t2/60)})`;
+  if(t2>10){ ctx.beginPath(); ctx.arc(24,24,t2*0.5-6,0,Math.PI*2); ctx.stroke(); }
+  // particles
+  for(let i=0;i<6;i++){
+    let a=i*Math.PI/3, r=t2*0.6;
+    ctx.fillStyle=`rgba(255,180,80,${Math.max(0,0.9-t2/60)})`;
+    ctx.fillRect(24+Math.cos(a)*r-1,24+Math.sin(a)*r-1,2,2);
+  }
+}
+
+function drawAnimScore(){
+  const c=clearAnim('anim-score'); const ctx=c.getContext('2d');
+  // star medal
+  let cx=24,cy=18,t=animT*0.03;
+  ctx.strokeStyle='rgba(255,180,0,0.9)'; ctx.lineWidth=1;
+  for(let i=0;i<5;i++){
+    let a=i*Math.PI*2/5-Math.PI/2+t;
+    let a2=a+Math.PI/5;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(a)*10,cy+Math.sin(a)*10);
+    ctx.lineTo(cx+Math.cos(a2)*5,cy+Math.sin(a2)*5);
+    let a3=a2+Math.PI/5;
+    ctx.lineTo(cx+Math.cos(a3)*10,cy+Math.sin(a3)*10);
+    ctx.stroke();
+  }
+  let shown=Math.min(99,Math.floor(animT%90/2));
+  ctx.fillStyle='#c8dff5'; ctx.font='bold 9px monospace';
+  ctx.fillText(String(shown).padStart(2,'0'),16,40);
+}
+
+function drawAnimHyper(){
+  const c=clearAnim('anim-hyper'); const ctx=c.getContext('2d');
+  for(let i=0;i<12;i++){
+    let sy=(i*4)%48;
+    let len=Math.floor((animT%30)*0.8)+2;
+    ctx.fillStyle=`rgba(150,210,255,${0.3+i*0.05})`;
+    ctx.fillRect(48-len*2,sy,len*2,1);
+  }
+  if(animT%90>50){
+    ctx.fillStyle='rgba(0,212,255,0.8)'; ctx.font='bold 8px monospace';
+    let s='NOVA'.substring(0,Math.floor((animT%90-50)/8));
+    ctx.fillText(s,4,28);
+  }
+}
+
+function drawAnimBomb(){
+  const c=clearAnim('anim-bomb'); const ctx=c.getContext('2d');
+  let t2=animT%50;
+  ctx.strokeStyle=`rgba(255,180,0,${Math.max(0,1-t2/50)})`;
+  ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(24,24,t2*0.6,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle=`rgba(255,120,0,${Math.max(0,0.8-t2/50)})`;
+  ctx.lineWidth=1;
+  if(t2>8){ ctx.beginPath(); ctx.arc(24,24,t2*0.6-8,0,Math.PI*2); ctx.stroke(); }
+}
+
+drawAnimCanvases();
+
+// ── BUTTON DEMO ─────────────────────────────────────────────────────
+const actions={
+  UP:'▲ Ship moves UP',
+  DOWN:'▼ Ship moves DOWN',
+  FIRE:'⚡ Bullet fired!',
+  BOMB:'💣 Smart bomb deployed — screen cleared!'
+};
+function demoBtn(el,action){
+  el.classList.add('active');
+  setTimeout(()=>el.classList.remove('active'),200);
+  const fb=document.getElementById('ctrl-feedback');
+  fb.style.display='block';
+  fb.textContent='> '+actions[action];
+  fb.style.color=action==='BOMB'?'var(--amber)':'var(--accent2)';
+  clearTimeout(fb._t);
+  fb._t=setTimeout(()=>fb.style.display='none',2000);
+}
+
+// ── SCROLL REVEAL ───────────────────────────────────────────────────
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

@@ -9,7 +9,7 @@
  * ║  OLED  SCL  → GPIO6  (D5)                                            ║
  * ║                                                                       ║
  * ║  BTN_UP     → GPIO9  (D10)  [TTP223 or push switch + 10k pull-down]  ║
- * ║  BTN_DOWN   → GPIO1  (D6)   [TTP223 or push switch + 10k pull-down]  ║
+ * ║  BTN_DOWN   → GPIO2  (D9)   [TTP223 or push switch + 10k pull-down]  ║
  * ║  BTN_FIRE   → GPIO44 (D7)   [TTP223 or push switch + 10k pull-down]  ║
  * ║  BTN_BOMB   → GPIO3  (D2)   [TTP223 or push switch + 10k pull-down]  ║
  * ║                                                                       ║
@@ -17,7 +17,7 @@
  * ║  SPK LRC    → GPIO4  (D3)                                            ║
  * ║  SPK DIN    → GPIO2  (D1)                                            ║
  * ║                                                                       ║
- * ║  NOTE: GPIO2 reserved for SPK DIN — DOWN button on GPIO1 (D6)         ║
+ * ║  NOTE: GPIO2 is shared for SPK DIN and DOWN button (independent use)    ║
  * ╠═══════════════════════════════════════════════════════════════════════╣
  * ║  CONTROLS                                                             ║
  * ║  UP    → move ship up          (hold for continuous)                  ║
@@ -60,7 +60,7 @@ Adafruit_SSD1306 oled(SW, SH, &Wire, -1);
 //  BUTTONS  (HIGH = pressed — works for TTP223 & pull-down switches)
 // ═══════════════════════════════════════════════════════════
 #define BTN_UP    9   // GPIO9  D10
-#define BTN_DOWN  1   // GPIO1  D6
+#define BTN_DOWN  2   // GPIO2  D9
 #define BTN_FIRE  44  // GPIO44 D7
 #define BTN_BOMB  3   // GPIO3  D2
 
@@ -116,7 +116,12 @@ void setupSpeaker() {
     .dma_buf_count = 4, .dma_buf_len = 256,
     .use_apll = false, .tx_desc_auto_clear = true
   };
-  i2s_pin_config_t p = { SPK_BCLK, SPK_LRC, SPK_DIN, I2S_PIN_NO_CHANGE };
+  i2s_pin_config_t p = {
+    .bck_io_num = SPK_BCLK,
+    .ws_io_num = SPK_LRC,
+    .data_out_num = SPK_DIN,
+    .data_in_num = I2S_PIN_NO_CHANGE
+  };
   i2s_driver_install(SPK_PORT, &c, 0, NULL);
   i2s_set_pin(SPK_PORT, &p);
 }

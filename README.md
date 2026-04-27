@@ -25,10 +25,10 @@ A pixel-perfect arcade shooter running entirely on a **Seeed Xiao ESP32-S3** mic
 #### Buttons (HIGH = Pressed)
 | Button | GPIO | Label | Notes |
 |--------|------|-------|-------|
-| UP | GPIO1 | D0 | TTP223 or switch + 10kΩ pull-down |
-| DOWN | GPIO9 | D10 | *Moved to avoid SPK conflict* |
-| FIRE | GPIO3 | D2 | TTP223 or switch + 10kΩ pull-down |
-| BOMB | GPIO44 | D7 | TTP223 or switch + 10kΩ pull-down |
+| UP | GPIO9 | D10 | TTP223 or switch + 10kΩ pull-down |
+| DOWN | GPIO2 | D9 | TTP223 or switch + 10kΩ pull-down |
+| FIRE | GPIO44 | D7 | TTP223 or switch + 10kΩ pull-down |
+| BOMB | GPIO3 | D2 | TTP223 or switch + 10kΩ pull-down |
 
 #### MAX98357A (I²S)
 | Pin | GPIO | Label | Notes |

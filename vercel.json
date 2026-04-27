@@ -1,4 +1,15 @@
 {
-  "framework": "flask",
-  "buildCommand": "pip install -r requirements.txt"
+  "version": 2,
+  "builds": [
+    {
+      "src": "NovaStrike_README.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/NovaStrike_README.html"
+    }
+  ]
 }

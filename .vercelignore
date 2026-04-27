@@ -1,0 +1,12 @@
+# Exclude everything except the README HTML
+.pio/
+.vscode/
+src/
+include/
+api/
+templates/
+README.md
+requirements.txt
+package.json
+platformio.ini
+nova_strike_sound_engine.html

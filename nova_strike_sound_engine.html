@@ -1,0 +1,537 @@
+
+<div style="font-family:var(--font-mono,monospace);padding:1rem 0;">
+<h2 class="sr-only">Nova Strike Sound Engine — interactive sound effects for every game scene</h2>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px;">
+  <div>
+    <div style="font-size:18px;font-weight:500;color:var(--color-text-primary)">Nova Strike — Sound Engine</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">Web Audio API · All sounds synthesized in code · Click any button to play</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <label style="font-size:12px;color:var(--color-text-secondary);">Master vol</label>
+    <input type="range" id="masterVol" min="0" max="100" value="70" style="width:80px;">
+    <span id="masterVolOut" style="font-size:12px;min-width:28px;color:var(--color-text-primary)">70%</span>
+  </div>
+</div>
+
+<div id="viz" style="height:60px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-bottom:1.25rem;position:relative;overflow:hidden;">
+  <canvas id="waveCanvas" style="width:100%;height:100%;display:block;"></canvas>
+  <div id="vizLabel" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;color:var(--color-text-tertiary);pointer-events:none;">Play a sound to see waveform</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;" id="sfxGrid"></div>
+
+<div style="margin-top:1.5rem;border-top:0.5px solid var(--color-border-tertiary);padding-top:1rem;">
+  <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:0.75rem;">Tune parameters</div>
+  <div id="paramArea" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;"></div>
+</div>
+
+<div id="logBar" style="margin-top:1rem;font-size:11px;color:var(--color-text-tertiary);min-height:16px;"></div>
+</div>
+
+<script>
+let actx, masterGain, analyser, waveData;
+let animId;
+
+function initAudio() {
+  if (actx) return;
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = actx.createGain();
+  masterGain.gain.value = 0.7;
+  analyser = actx.createAnalyser();
+  analyser.fftSize = 1024;
+  waveData = new Float32Array(analyser.fftSize);
+  masterGain.connect(analyser);
+  analyser.connect(actx.destination);
+  startViz();
+}
+
+document.getElementById('masterVol').addEventListener('input', function() {
+  document.getElementById('masterVolOut').textContent = this.value + '%';
+  if (masterGain) masterGain.gain.value = this.value / 100;
+});
+
+function out(node) {
+  node.connect(masterGain);
+  return node;
+}
+
+function env(gain, t, a, d, s, r, peak=1) {
+  const g = gain;
+  const n = t;
+  g.gain.setValueAtTime(0, n);
+  g.gain.linearRampToValueAtTime(peak, n + a);
+  g.gain.linearRampToValueAtTime(s * peak, n + a + d);
+  g.gain.setValueAtTime(s * peak, n + a + d + 0.01);
+  g.gain.linearRampToValueAtTime(0, n + a + d + r);
+  return n + a + d + r;
+}
+
+function osc(type, freq, start, dur, gainPeak=0.4) {
+  const o = actx.createOscillator();
+  const g = actx.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(freq, start);
+  g.gain.setValueAtTime(0, start);
+  g.gain.linearRampToValueAtTime(gainPeak, start + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+  o.connect(g); g.connect(masterGain);
+  o.start(start); o.stop(start + dur + 0.05);
+  return o;
+}
+
+function noise(dur, gainPeak=0.3, lpFreq=4000) {
+  const buf = actx.createBuffer(1, actx.sampleRate * dur, actx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random()*2-1;
+  const src = actx.createBufferSource();
+  src.buffer = buf;
+  const filt = actx.createBiquadFilter();
+  filt.type = 'lowpass';
+  filt.frequency.value = lpFreq;
+  const g = actx.createGain();
+  g.gain.value = gainPeak;
+  src.connect(filt); filt.connect(g); g.connect(masterGain);
+  return { src, g, filt };
+}
+
+const params = {
+  shoot_freq: 880,
+  shoot_decay: 0.12,
+  explosion_low: 80,
+  explosion_noise: 0.6,
+  powerup_start: 400,
+  jingle_tempo: 140,
+  wave_freq: 660,
+  death_start: 600,
+  loading_steps: 8,
+  hit_freq: 220,
+};
+
+const SFX = [
+  {
+    id:'sfx_shoot', label:'Laser shot', scene:'Playing', color:'c-blue',
+    desc:'Short zap — fired on every bullet',
+    params:['shoot_freq','shoot_decay'],
+    play() {
+      const t = actx.currentTime;
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(params.shoot_freq, t);
+      o.frequency.exponentialRampToValueAtTime(params.shoot_freq * 0.3, t + params.shoot_decay);
+      g.gain.setValueAtTime(0.35, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + params.shoot_decay + 0.02);
+      o.connect(g); g.connect(masterGain);
+      o.start(t); o.stop(t + params.shoot_decay + 0.05);
+      log('Laser — ' + Math.round(params.shoot_freq) + 'Hz → ' + Math.round(params.shoot_freq*0.3) + 'Hz');
+    }
+  },
+  {
+    id:'sfx_hit', label:'Enemy hit', scene:'Playing', color:'c-amber',
+    desc:'Impact thud when bullet connects',
+    params:['hit_freq'],
+    play() {
+      const t = actx.currentTime;
+      osc('square', params.hit_freq, t, 0.08, 0.3);
+      osc('sine', params.hit_freq * 0.5, t, 0.12, 0.2);
+      const n = noise(0.06, 0.15, 2000);
+      n.g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+      n.src.start(t); n.src.stop(t + 0.07);
+      log('Hit — ' + Math.round(params.hit_freq) + 'Hz thud + noise');
+    }
+  },
+  {
+    id:'sfx_explode', label:'Explosion', scene:'Playing', color:'c-red',
+    desc:'Enemy death — noise burst + bass',
+    params:['explosion_low','explosion_noise'],
+    play() {
+      const t = actx.currentTime;
+      const n = noise(0.8, params.explosion_noise, 800);
+      n.g.gain.setValueAtTime(params.explosion_noise, t);
+      n.g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+      n.src.start(t); n.src.stop(t + 0.85);
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(params.explosion_low * 1.5, t);
+      o.frequency.exponentialRampToValueAtTime(params.explosion_low, t + 0.3);
+      g.gain.setValueAtTime(0.5, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+      o.connect(g); g.connect(masterGain);
+      o.start(t); o.stop(t + 0.55);
+      log('Explosion — ' + Math.round(params.explosion_low) + 'Hz + filtered noise');
+    }
+  },
+  {
+    id:'sfx_bomb', label:'Smart bomb', scene:'Playing', color:'c-red',
+    desc:'Screen-clearing bomb — deep shockwave',
+    params:[],
+    play() {
+      const t = actx.currentTime;
+      [0, 0.04, 0.08].forEach((off, i) => {
+        const o = actx.createOscillator();
+        const g = actx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(440 - i * 110, t + off);
+        o.frequency.exponentialRampToValueAtTime(60, t + off + 0.6);
+        g.gain.setValueAtTime(0.6 - i*0.1, t + off);
+        g.gain.exponentialRampToValueAtTime(0.001, t + off + 0.8);
+        o.connect(g); g.connect(masterGain);
+        o.start(t + off); o.stop(t + off + 0.85);
+      });
+      const n = noise(1.0, 0.5, 600);
+      n.g.gain.setValueAtTime(0.5, t);
+      n.g.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+      n.src.start(t); n.src.stop(t + 1.0);
+      log('Bomb — triple descending sine + shockwave noise');
+    }
+  },
+  {
+    id:'sfx_powerup', label:'Power-up', scene:'Playing', color:'c-teal',
+    desc:'Collect power-up — ascending shimmer',
+    params:['powerup_start'],
+    play() {
+      const t = actx.currentTime;
+      const ratios = [1, 1.25, 1.5, 2, 2.5, 3];
+      ratios.forEach((r, i) => {
+        const o = actx.createOscillator();
+        const g = actx.createGain();
+        o.type = 'sine';
+        const f = params.powerup_start * r;
+        o.frequency.setValueAtTime(f, t + i * 0.055);
+        g.gain.setValueAtTime(0, t + i * 0.055);
+        g.gain.linearRampToValueAtTime(0.25, t + i * 0.055 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.055 + 0.18);
+        o.connect(g); g.connect(masterGain);
+        o.start(t + i * 0.055); o.stop(t + i * 0.055 + 0.2);
+      });
+      log('Power-up — ' + ratios.length + '-step arpeggio from ' + Math.round(params.powerup_start) + 'Hz');
+    }
+  },
+  {
+    id:'sfx_shield', label:'Shield hit', scene:'Playing', color:'c-blue',
+    desc:'Shield absorbs a hit — metallic clank',
+    params:[],
+    play() {
+      const t = actx.currentTime;
+      [523, 659, 880, 1047].forEach((f, i) => {
+        const o = actx.createOscillator();
+        const g = actx.createGain();
+        o.type = i % 2 === 0 ? 'triangle' : 'sine';
+        o.frequency.setValueAtTime(f, t);
+        g.gain.setValueAtTime(0.2, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.25 - i * 0.04);
+        o.connect(g); g.connect(masterGain);
+        o.start(t); o.stop(t + 0.3);
+      });
+      log('Shield — resonant chord cluster');
+    }
+  },
+  {
+    id:'sfx_wave', label:'Wave clear', scene:'Wave Clear', color:'c-teal',
+    desc:'Wave completed — triumphant fanfare',
+    params:['wave_freq'],
+    play() {
+      const t = actx.currentTime;
+      const melody = [1, 1.25, 1.5, 2];
+      melody.forEach((r, i) => {
+        osc('sine', params.wave_freq * r, t + i * 0.1, 0.25, 0.35);
+        osc('triangle', params.wave_freq * r * 0.5, t + i * 0.1, 0.25, 0.15);
+      });
+      osc('sine', params.wave_freq * 3, t + 0.5, 0.4, 0.3);
+      log('Wave clear — ascending fanfare at ' + Math.round(params.wave_freq) + 'Hz base');
+    }
+  },
+  {
+    id:'sfx_boss_entry', label:'Boss entry', scene:'Boss Entry', color:'c-red',
+    desc:'Boss arrives — ominous warning siren',
+    params:[],
+    play() {
+      const t = actx.currentTime;
+      for (let i = 0; i < 4; i++) {
+        const o = actx.createOscillator();
+        const g = actx.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(180, t + i * 0.3);
+        o.frequency.linearRampToValueAtTime(220, t + i * 0.3 + 0.15);
+        o.frequency.linearRampToValueAtTime(180, t + i * 0.3 + 0.28);
+        g.gain.setValueAtTime(0.4, t + i * 0.3);
+        g.gain.setValueAtTime(0.4, t + i * 0.3 + 0.25);
+        g.gain.linearRampToValueAtTime(0, t + i * 0.3 + 0.29);
+        o.connect(g); g.connect(masterGain);
+        o.start(t + i * 0.3); o.stop(t + i * 0.3 + 0.32);
+      }
+      const low = actx.createOscillator();
+      const lg = actx.createGain();
+      low.type = 'sine';
+      low.frequency.setValueAtTime(55, t);
+      lg.gain.setValueAtTime(0, t);
+      lg.gain.linearRampToValueAtTime(0.5, t + 0.2);
+      lg.gain.setValueAtTime(0.5, t + 1.0);
+      lg.gain.linearRampToValueAtTime(0, t + 1.3);
+      low.connect(lg); lg.connect(masterGain);
+      low.start(t); low.stop(t + 1.35);
+      log('Boss entry — 4x alarm pulse + 55Hz rumble');
+    }
+  },
+  {
+    id:'sfx_boss_die', label:'Boss death', scene:'Boss Entry', color:'c-coral',
+    desc:'Boss defeated — epic cascade',
+    params:[],
+    play() {
+      const t = actx.currentTime;
+      for (let i = 0; i < 6; i++) {
+        const freq = 800 - i * 110;
+        osc('sine', freq, t + i * 0.08, 0.3, 0.4);
+        const n = noise(0.15, 0.3 - i * 0.04, 3000 - i * 400);
+        n.g.gain.setValueAtTime(0.3 - i * 0.04, t + i * 0.08);
+        n.g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.15);
+        n.src.start(t + i * 0.08); n.src.stop(t + i * 0.08 + 0.17);
+      }
+      osc('sine', 110, t + 0.5, 1.0, 0.6);
+      log('Boss death — 6-step cascade + bass swell');
+    }
+  },
+  {
+    id:'sfx_jingle', label:'Startup jingle', scene:'Boot', color:'c-purple',
+    desc:'Boot sequence — C-E-G-C arpeggio',
+    params:['jingle_tempo'],
+    play() {
+      const t = actx.currentTime;
+      const bps = params.jingle_tempo / 60;
+      const step = 1 / bps * 0.5;
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((f, i) => {
+        osc('sine', f, t + i * step, step * 1.1, 0.35);
+        osc('triangle', f * 0.5, t + i * step, step * 0.8, 0.15);
+      });
+      log('Jingle — ' + Math.round(params.jingle_tempo) + ' BPM, C5-E5-G5-C6');
+    }
+  },
+  {
+    id:'sfx_gameover', label:'Game over', scene:'Ending', color:'c-gray',
+    desc:'All lives lost — descending toll',
+    params:[],
+    play() {
+      const t = actx.currentTime;
+      const notes = [392, 349, 330, 294, 262];
+      notes.forEach((f, i) => {
+        const delay = i * 0.22;
+        osc('sine', f, t + delay, 0.5, 0.4);
+        osc('triangle', f * 1.5, t + delay, 0.4, 0.1);
+      });
+      const n = noise(0.4, 0.2, 1500);
+      n.g.gain.setValueAtTime(0.2, t + 0.8);
+      n.g.gain.linearRampToValueAtTime(0, t + 1.2);
+      n.src.start(t + 0.8); n.src.stop(t + 1.25);
+      log('Game over — 5-note descending toll');
+    }
+  },
+  {
+    id:'sfx_death', label:'Ship destroyed', scene:'Death', color:'c-red',
+    desc:'Player death — crash + shockwave ring',
+    params:['death_start'],
+    play() {
+      const t = actx.currentTime;
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(params.death_start, t);
+      o.frequency.exponentialRampToValueAtTime(40, t + 0.8);
+      g.gain.setValueAtTime(0.5, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+      o.connect(g); g.connect(masterGain);
+      o.start(t); o.stop(t + 0.95);
+      const n = noise(0.6, 0.55, 5000);
+      n.filt.frequency.setValueAtTime(5000, t);
+      n.filt.frequency.exponentialRampToValueAtTime(400, t + 0.6);
+      n.g.gain.setValueAtTime(0.55, t);
+      n.g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+      n.src.start(t); n.src.stop(t + 0.75);
+      log('Ship destroyed — ' + Math.round(params.death_start) + 'Hz saw sweep + crash');
+    }
+  },
+  {
+    id:'sfx_loading', label:'Loading / boot', scene:'Loading', color:'c-purple',
+    desc:'System boot — digital handshake',
+    params:['loading_steps'],
+    play() {
+      const t = actx.currentTime;
+      const steps = Math.round(params.loading_steps);
+      for (let i = 0; i < steps; i++) {
+        const freq = 300 + i * (1200 / steps);
+        const o = actx.createOscillator();
+        const g = actx.createGain();
+        o.type = i % 2 === 0 ? 'square' : 'sine';
+        o.frequency.setValueAtTime(freq, t + i * 0.11);
+        g.gain.setValueAtTime(0.12, t + i * 0.11);
+        g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.11 + 0.08);
+        o.connect(g); g.connect(masterGain);
+        o.start(t + i * 0.11); o.stop(t + i * 0.11 + 0.1);
+      }
+      log('Loading — ' + steps + '-step digital sweep 300→1500Hz');
+    }
+  },
+  {
+    id:'sfx_score', label:'Score point', scene:'Playing', color:'c-green',
+    desc:'Enemy killed / scored — bright ding',
+    params:[],
+    play() {
+      const t = actx.currentTime;
+      osc('sine', 880, t, 0.06, 0.28);
+      osc('sine', 1320, t + 0.06, 0.1, 0.22);
+      log('Score — 880 → 1320Hz two-note ding');
+    }
+  },
+  {
+    id:'sfx_thruster', label:'Thruster', scene:'Playing', color:'c-amber',
+    desc:'Ship moving — continuous rumble',
+    params:[],
+    play() {
+      const t = actx.currentTime;
+      const n = noise(0.6, 0.18, 600);
+      n.filt.type = 'bandpass';
+      n.filt.frequency.value = 300;
+      n.filt.Q.value = 2;
+      n.g.gain.setValueAtTime(0, t);
+      n.g.gain.linearRampToValueAtTime(0.18, t + 0.05);
+      n.g.gain.setValueAtTime(0.18, t + 0.4);
+      n.g.gain.linearRampToValueAtTime(0, t + 0.6);
+      n.src.start(t); n.src.stop(t + 0.65);
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = 'sawtooth';
+      o.frequency.value = 55;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.08, t + 0.05);
+      g.gain.setValueAtTime(0.08, t + 0.4);
+      g.gain.linearRampToValueAtTime(0, t + 0.6);
+      o.connect(g); g.connect(masterGain);
+      o.start(t); o.stop(t + 0.65);
+      log('Thruster — bandpass noise + 55Hz saw');
+    }
+  },
+];
+
+function log(msg) {
+  document.getElementById('logBar').textContent = '> ' + msg;
+}
+
+function buildParamSlider(key, label, min, max, step) {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;">${label}</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <input type="range" min="${min}" max="${max}" step="${step}" value="${params[key]}" data-key="${key}" style="flex:1;">
+      <span style="font-size:11px;min-width:36px;color:var(--color-text-primary);" id="out_${key}">${Math.round(params[key])}</span>
+    </div>`;
+  wrap.querySelector('input').addEventListener('input', function() {
+    params[this.dataset.key] = parseFloat(this.value);
+    document.getElementById('out_' + this.dataset.key).textContent = Math.round(parseFloat(this.value));
+  });
+  return wrap;
+}
+
+const paramDefs = {
+  shoot_freq:      ['Shoot freq (Hz)', 200, 2000, 10],
+  shoot_decay:     ['Shoot decay (s)', 0.03, 0.5, 0.01],
+  explosion_low:   ['Explosion bass (Hz)', 40, 200, 5],
+  explosion_noise: ['Explosion noise vol', 0.1, 1.0, 0.05],
+  powerup_start:   ['Power-up base (Hz)', 200, 800, 10],
+  jingle_tempo:    ['Jingle tempo (BPM)', 80, 220, 5],
+  wave_freq:       ['Wave clear base (Hz)', 300, 1000, 10],
+  death_start:     ['Death start (Hz)', 200, 1200, 20],
+  loading_steps:   ['Loading steps', 4, 16, 1],
+  hit_freq:        ['Hit freq (Hz)', 100, 500, 10],
+};
+
+const grid = document.getElementById('sfxGrid');
+const paramArea = document.getElementById('paramArea');
+const activeSfx = new Set();
+
+SFX.forEach(sfx => {
+  const card = document.createElement('div');
+  card.style.cssText = 'background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px;cursor:pointer;user-select:none;transition:background 0.12s;';
+  card.innerHTML = `
+    <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:3px;letter-spacing:0.05em;">${sfx.scene.toUpperCase()}</div>
+    <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;">${sfx.label}</div>
+    <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.4;margin-bottom:10px;">${sfx.desc}</div>
+    <button style="width:100%;padding:7px 0;font-size:12px;font-family:var(--font-mono,monospace);letter-spacing:0.05em;" id="btn_${sfx.id}">PLAY</button>`;
+
+  const btn = card.querySelector('button');
+  btn.addEventListener('click', () => {
+    initAudio();
+    if (actx.state === 'suspended') actx.resume();
+    sfx.play();
+    btn.textContent = 'PLAYING...';
+    btn.style.borderColor = 'var(--color-border-primary)';
+    setTimeout(() => {
+      btn.textContent = 'PLAY';
+      btn.style.borderColor = '';
+    }, 1200);
+    showParams(sfx);
+  });
+  grid.appendChild(card);
+});
+
+let currentParamSfx = null;
+function showParams(sfx) {
+  if (currentParamSfx === sfx.id) return;
+  currentParamSfx = sfx.id;
+  paramArea.innerHTML = '';
+  if (!sfx.params || sfx.params.length === 0) {
+    paramArea.innerHTML = '<div style="font-size:12px;color:var(--color-text-tertiary);grid-column:1/-1;">This effect uses fixed synthesis — no adjustable parameters.</div>';
+    return;
+  }
+  sfx.params.forEach(key => {
+    if (paramDefs[key]) {
+      const [label, min, max, step] = paramDefs[key];
+      paramArea.appendChild(buildParamSlider(key, label, min, max, step));
+    }
+  });
+}
+
+function startViz() {
+  const canvas = document.getElementById('waveCanvas');
+  const ctx2d = canvas.getContext('2d');
+  const label = document.getElementById('vizLabel');
+  let hadAudio = false;
+
+  function draw() {
+    animId = requestAnimationFrame(draw);
+    const W = canvas.offsetWidth, H = canvas.offsetHeight;
+    if (canvas.width !== W * devicePixelRatio) {
+      canvas.width = W * devicePixelRatio;
+      canvas.height = H * devicePixelRatio;
+      ctx2d.scale(devicePixelRatio, devicePixelRatio);
+    }
+    analyser.getFloatTimeDomainData(waveData);
+    let maxAmp = 0;
+    for (let i = 0; i < waveData.length; i++) maxAmp = Math.max(maxAmp, Math.abs(waveData[i]));
+
+    ctx2d.clearRect(0, 0, W, H);
+
+    if (maxAmp > 0.005) {
+      hadAudio = true;
+      label.style.display = 'none';
+      const sliceW = W / waveData.length;
+      ctx2d.beginPath();
+      ctx2d.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-text-info') || '#2563eb';
+      ctx2d.lineWidth = 1.5;
+      for (let i = 0; i < waveData.length; i++) {
+        const y = (0.5 + waveData[i] * 0.4) * H;
+        i === 0 ? ctx2d.moveTo(i * sliceW, y) : ctx2d.lineTo(i * sliceW, y);
+      }
+      ctx2d.stroke();
+    } else if (hadAudio) {
+      ctx2d.beginPath();
+      ctx2d.strokeStyle = 'var(--color-border-secondary)';
+      ctx2d.lineWidth = 1;
+      ctx2d.moveTo(0, H/2); ctx2d.lineTo(W, H/2);
+      ctx2d.stroke();
+    }
+  }
+  draw();
+}
+</script>

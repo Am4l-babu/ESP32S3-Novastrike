@@ -172,17 +172,90 @@ void tickAudio() {
   if (toneSamplesLeft <= 0) tonePlaying = false;
 }
 
-// Sound effects
-void sfxShoot()     { queueTone(880,22,0.12f); }
-void sfxHit()       { queueTone(220,35,0.3f); }
-void sfxExplode()   { queueTone(180,60,0.4f); queueTone(120,80,0.35f); }
-void sfxBomb()      { queueTone(440,40,0.4f); queueTone(330,40,0.4f); queueTone(220,80,0.45f); }
-void sfxPowerup()   { queueTone(660,50,0.2f); queueTone(880,50,0.2f); queueTone(1320,80,0.2f); }
-void sfxShield()    { queueTone(440,30,0.15f); }
-void sfxBossDie()   { for(int i=0;i<5;i++) { queueTone(800-i*120, 60, 0.35f); } }
-void sfxJingle()    { queueTone(523,80); queueTone(659,80); queueTone(784,80); queueTone(1047,160); }
-void sfxGameOver()  { queueTone(392,120); queueTone(330,120); queueTone(262,240); }
-void sfxWave()      { queueTone(1047,60,0.2f); queueTone(1319,60,0.2f); queueTone(1568,120,0.2f); }
+// ═══════════════════════════════════════════════════════════
+//  SOUND EFFECTS — Enhanced from nova_strike_sound_engine.html
+// ═══════════════════════════════════════════════════════════
+// Laser shot — short zap on every bullet
+void sfxShoot()     { queueTone(880, 22, 0.16f); }
+
+// Enemy hit — impact thud when bullet connects
+void sfxHit()       { queueTone(220, 35, 0.3f); queueTone(110, 35, 0.15f); }
+
+// Explosion — enemy death noise burst + bass
+void sfxExplode()   { queueTone(180, 60, 0.4f); queueTone(120, 80, 0.35f); }
+
+// Smart bomb — triple descending sine + shockwave
+void sfxBomb()      { 
+  queueTone(440, 40, 0.4f); 
+  queueTone(330, 40, 0.4f); 
+  queueTone(220, 80, 0.45f); 
+}
+
+// Power-up — ascending shimmer (arpeggio)
+void sfxPowerup()   { 
+  queueTone(400, 55, 0.18f); 
+  queueTone(500, 55, 0.18f); 
+  queueTone(600, 55, 0.18f); 
+  queueTone(800, 55, 0.2f); 
+}
+
+// Shield hit — metallic clank
+void sfxShield()    { 
+  queueTone(523, 30, 0.2f); 
+  queueTone(659, 25, 0.18f); 
+  queueTone(880, 20, 0.15f); 
+}
+
+// Boss death — epic 6-step cascade
+void sfxBossDie()   { 
+  for(int i = 0; i < 6; i++) { 
+    queueTone(800 - i*120, 60, 0.35f - i*0.05f); 
+  } 
+}
+
+// Startup jingle — C5-E5-G5-C6 arpeggio
+void sfxJingle()    { 
+  queueTone(523, 80, 0.35f); 
+  queueTone(659, 80, 0.35f); 
+  queueTone(784, 80, 0.35f); 
+  queueTone(1047, 160, 0.35f); 
+}
+
+// Game over — descending toll
+void sfxGameOver()  { 
+  queueTone(392, 120, 0.35f); 
+  queueTone(349, 120, 0.32f); 
+  queueTone(330, 120, 0.3f); 
+  queueTone(294, 120, 0.28f); 
+  queueTone(262, 240, 0.35f); 
+}
+
+// Wave clear — triumphant fanfare
+void sfxWave()      { 
+  queueTone(660, 60, 0.25f); 
+  queueTone(825, 60, 0.25f); 
+  queueTone(990, 60, 0.25f); 
+  queueTone(1320, 120, 0.3f); 
+}
+
+// Boss entry — ominous warning siren
+void sfxBossEntry() { 
+  queueTone(180, 100, 0.25f); 
+  queueTone(200, 100, 0.25f); 
+}
+
+// Ship destroyed — crash + shockwave ring
+void sfxDeath()     { 
+  queueTone(600, 80, 0.35f); 
+  queueTone(400, 100, 0.3f); 
+  queueTone(200, 120, 0.25f); 
+}
+
+// Score point — bright ding
+void sfxScore()     { 
+  queueTone(880, 60, 0.25f); 
+  queueTone(1320, 100, 0.2f); 
+}
 
 // ═══════════════════════════════════════════════════════════
 //  GAME CONSTANTS
@@ -596,6 +669,7 @@ void updateEnemies() {
         if (e.hp <= 0) {
           spawnExplosion(e.x+2, e.y+2, 8);
           sfxExplode();
+          sfxScore();
           ship.score += (e.type==E_KAMIKAZE)?30 : (e.type==E_HUNTER)?20 : 10;
           trySpawnPowerup(e.x, e.y);
           e.active = false;
@@ -878,6 +952,7 @@ void updatePlaying() {
       gState = GS_BOSS_ENTRY;
       bossEntryTimer = 80;
       spawnBoss();
+      sfxBossEntry();
     } else {
       wave++;
       killCount = 0;

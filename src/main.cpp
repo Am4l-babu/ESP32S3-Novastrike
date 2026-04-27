@@ -9,7 +9,7 @@
  * ║  OLED  SCL  → GPIO6  (D5)                                            ║
  * ║                                                                       ║
  * ║  BTN_UP     → GPIO9  (D10)  [TTP223 or push switch + 10k pull-down]  ║
- * ║  BTN_DOWN   → GPIO1  (D6)   [TTP223 or push switch + 10k pull-down]  ║
+ * ║  BTN_DOWN   → GPIO2  (D9)   [TTP223 or push switch + 10k pull-down]  ║
  * ║  BTN_FIRE   → GPIO44 (D7)   [TTP223 or push switch + 10k pull-down]  ║
  * ║  BTN_BOMB   → GPIO3  (D2)   [TTP223 or push switch + 10k pull-down]  ║
  * ║                                                                       ║
@@ -17,7 +17,7 @@
  * ║  SPK LRC    → GPIO4  (D3)                                            ║
  * ║  SPK DIN    → GPIO2  (D1)                                            ║
  * ║                                                                       ║
- * ║  NOTE: GPIO2 (D1) reserved for speaker DIN                            ║
+ * ║  NOTE: GPIO2 (D9) shared for speaker DIN and DOWN button (independent)   ║
  * ╠═══════════════════════════════════════════════════════════════════════╣
  * ║  CONTROLS                                                             ║
  * ║  UP    → move ship up          (hold for continuous)                  ║
@@ -60,7 +60,7 @@ Adafruit_SSD1306 oled(SW, SH, &Wire, -1);
 //  BUTTONS  (HIGH = pressed — works for TTP223 & pull-down switches)
 // ═══════════════════════════════════════════════════════════
 #define BTN_UP    9   // GPIO9  D10
-#define BTN_DOWN  1   // GPIO1  D6
+#define BTN_DOWN  2   // GPIO2  D9
 #define BTN_FIRE  44  // GPIO44 D7
 #define BTN_BOMB  3   // GPIO3  D2
 
@@ -150,7 +150,7 @@ void tickAudio() {
     toneQHead = (toneQHead + 1) % TONE_Q_SIZE;
     toneSamplesLeft = SPK_RATE * n.dur / 1000;
     toneInc  = 2.0f * M_PI * n.freq / SPK_RATE;
-    toneVol  = n.vol;
+    toneVol  = n.vol * 0.7f;  // Reduce amplitude by 30% to prevent clipping
     tonePhase = 0;
     tonePlaying = true;
   }
@@ -158,11 +158,11 @@ void tickAudio() {
   for (int j = 0; j < chunk; j++) {
     float env = 1.0f;
     int rem = toneSamplesLeft - j;
-    int att = 80, rel = 160;
-    int total = SPK_RATE * 200 / 1000;
+    int att = 160, rel = 320;  // Longer attack/release for smoother envelope
     if (j < att)   env = (float)j / att;
     if (rem < rel) env = (float)rem / rel;
-    int16_t s = (int16_t)(sinf(tonePhase) * 32767 * toneVol * env);
+    // Scale amplitude to 0.8 to prevent clipping
+    int16_t s = (int16_t)(sinf(tonePhase) * 26214 * toneVol * env);
     toneBuf[j*2] = toneBuf[j*2+1] = s;
     tonePhase += toneInc;
   }

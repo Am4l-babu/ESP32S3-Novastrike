@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaStrike - ESP32 Arcade Shooter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #00ff00;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #00cc00;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-card {
+            background: rgba(0, 50, 0, 0.5);
+            border: 1px solid #00cc00;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .info-label {
+            color: #00ffff;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #00cc00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .api-response {
+            background: rgba(0, 20, 0, 0.8);
+            border: 1px solid #00aa00;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 0.85em;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        a {
+            color: #00ffff;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ NOVA STRIKE ⚡</h1>
+        <p class="subtitle">ESP32-S3 Arcade Space Shooter</p>
+        
+        <div class="section">
+            <div class="section-title">Project Info</div>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-label">Version</div>
+                    <div class="info-value">1.0.0</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">License</div>
+                    <div class="info-value">MIT</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Author</div>
+                    <div class="info-value">Am4l-babu</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Hardware</div>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-label">Microcontroller</div>
+                    <div class="info-value">Seeed Xiao ESP32-S3</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Display</div>
+                    <div class="info-value">SSD1306 0.96" OLED</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Audio</div>
+                    <div class="info-value">MAX98357A Amplifier</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">API Endpoints</div>
+            <div class="button-group">
+                <button onclick="fetchAPI('/api/status')">GET /api/status</button>
+                <button onclick="fetchAPI('/api/info')">GET /api/info</button>
+            </div>
+            <div id="response" class="api-response" style="display:none;"></div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Repository</div>
+            <p style="text-align: center; margin-top: 10px;">
+                <a href="https://github.com/Am4l-babu/ESP32S3-Novastrike" target="_blank">
+                    github.com/Am4l-babu/ESP32S3-Novastrike
+                </a>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        async function fetchAPI(endpoint) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

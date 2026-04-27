@@ -1,20 +1,4 @@
 {
-  "framework": "python",
-  "buildCommand": "pip install -r requirements.txt",
-  "functions": {
-    "api/app.py": {
-      "memory": 128,
-      "maxDuration": 10
-    }
-  },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "api/app.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "api/app.py"
-    }
-  ]
+  "framework": "flask",
+  "buildCommand": "pip install -r requirements.txt"
 }

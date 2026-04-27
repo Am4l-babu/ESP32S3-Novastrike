@@ -26,7 +26,7 @@ A pixel-perfect arcade shooter running entirely on a **Seeed Xiao ESP32-S3** mic
 | Button | GPIO | Label | Notes |
 |--------|------|-------|-------|
 | UP | GPIO9 | D10 | TTP223 or switch + 10kΩ pull-down |
-| DOWN | GPIO2 | D9 | TTP223 or switch + 10kΩ pull-down |
+| DOWN | GPIO1 | D6 | TTP223 or switch + 10kΩ pull-down |
 | FIRE | GPIO44 | D7 | TTP223 or switch + 10kΩ pull-down |
 | BOMB | GPIO3 | D2 | TTP223 or switch + 10kΩ pull-down |
 
@@ -39,7 +39,7 @@ A pixel-perfect arcade shooter running entirely on a **Seeed Xiao ESP32-S3** mic
 | VIN | 5V | — | Recommended for audio quality |
 | GND | GND | — | — |
 
-> **Note:** If using GPIO2 for speaker DIN conflicts with your button layout, move DOWN button to GPIO9 (D10) as shown above.
+> **Note:** GPIO2 is reserved for the MAX98357A speaker (I2S DIN). The DOWN button uses GPIO1 (D6) to avoid pin conflicts.
 
 ---
 

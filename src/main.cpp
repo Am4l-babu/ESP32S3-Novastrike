@@ -9,16 +9,15 @@
  * ║  OLED  SCL  → GPIO6  (D5)                                            ║
  * ║                                                                       ║
  * ║  BTN_UP     → GPIO9  (D10)  [TTP223 or push switch + 10k pull-down]  ║
- * ║  BTN_DOWN   → GPIO2  (D9)   [TTP223 or push switch + 10k pull-down]  ║
+ * ║  BTN_DOWN   → GPIO1  (D6)   [TTP223 or push switch + 10k pull-down]  ║
  * ║  BTN_FIRE   → GPIO44 (D7)   [TTP223 or push switch + 10k pull-down]  ║
  * ║  BTN_BOMB   → GPIO3  (D2)   [TTP223 or push switch + 10k pull-down]  ║
  * ║                                                                       ║
  * ║  SPK BCLK   → GPIO7  (D8)                                            ║
  * ║  SPK LRC    → GPIO4  (D3)                                            ║
- * ║  SPK DIN    → GPIO2  (D1)  ← share or use separate GPIO9 (D10)       ║
+ * ║  SPK DIN    → GPIO2  (D1)                                            ║
  * ║                                                                       ║
- * ║  NOTE: If SPK DIN conflicts with BTN_DOWN on GPIO2, move             ║
- * ║        BTN_DOWN to GPIO9 (D10) instead.                              ║
+ * ║  NOTE: GPIO2 reserved for SPK DIN — DOWN button on GPIO1 (D6)         ║
  * ╠═══════════════════════════════════════════════════════════════════════╣
  * ║  CONTROLS                                                             ║
  * ║  UP    → move ship up          (hold for continuous)                  ║
@@ -61,7 +60,7 @@ Adafruit_SSD1306 oled(SW, SH, &Wire, -1);
 //  BUTTONS  (HIGH = pressed — works for TTP223 & pull-down switches)
 // ═══════════════════════════════════════════════════════════
 #define BTN_UP    9   // GPIO9  D10
-#define BTN_DOWN  2   // GPIO2  D9
+#define BTN_DOWN  1   // GPIO1  D6
 #define BTN_FIRE  44  // GPIO44 D7
 #define BTN_BOMB  3   // GPIO3  D2
 

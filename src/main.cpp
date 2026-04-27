@@ -10,8 +10,8 @@
  * ║                                                                       ║
  * ║  BTN_UP     → GPIO9  (D10)  [TTP223 or push switch + 10k pull-down]  ║
  * ║  BTN_DOWN   → GPIO8  (D9)   [TTP223 or push switch + 10k pull-down]  ║
- * ║  BTN_FIRE   → GPIO44 (D7)   [TTP223 or push switch + 10k pull-down]  ║
- * ║  BTN_BOMB   → GPIO3  (D2)   [TTP223 or push switch + 10k pull-down]  ║
+ * ║  BTN_FIRE   → GPIO3  (D2)   [TTP223 or push switch + 10k pull-down]  ║
+ * ║  BTN_BOMB   → GPIO11 (D0)   [TTP223 or push switch + 10k pull-down]  ║
  * ║                                                                       ║
  * ║  SPK BCLK   → GPIO7  (D8)                                            ║
  * ║  SPK LRC    → GPIO4  (D3)                                            ║
@@ -61,8 +61,8 @@ Adafruit_SSD1306 oled(SW, SH, &Wire, -1);
 // ═══════════════════════════════════════════════════════════
 #define BTN_UP    9   // GPIO9  D10
 #define BTN_DOWN  8   // GPIO8  D9
-#define BTN_FIRE  44  // GPIO44 D7
-#define BTN_BOMB  3   // GPIO3  D2
+#define BTN_FIRE  3   // GPIO3  D2
+#define BTN_BOMB  11  // GPIO11 D0
 
 struct Button {
   uint8_t pin;
